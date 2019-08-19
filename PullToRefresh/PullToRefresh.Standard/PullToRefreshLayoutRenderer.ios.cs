@@ -42,10 +42,9 @@ namespace Refractored.XamForms.PullToRefresh.iOS
         {
             var temp = DateTime.Now;
         }
-
+        public string refreshTitle;
         UIRefreshControl refreshControl;
         UIView refreshControlParent;
-
 
         /// <summary>
         /// Raises the element changed event.
@@ -58,11 +57,21 @@ namespace Refractored.XamForms.PullToRefresh.iOS
             if (e.OldElement != null || Element == null)
                 return;
 
+
+
             refreshControl = new UIRefreshControl();
 
             refreshControl.ValueChanged += OnRefresh;
 
-            this.refreshControlParent = this;
+            try
+            {
+                TryInsertRefresh(this);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("View is not supported in PullToRefreshLayout: " + ex);
+            }
+
 
             UpdateColors();
             UpdateIsRefreshing();
@@ -288,7 +297,13 @@ namespace Refractored.XamForms.PullToRefresh.iOS
 
                 isRefreshing = value;
                 if (isRefreshing)
+                {
                     refreshControl.BeginRefreshing();
+                    if (!string.IsNullOrEmpty(RefreshView.refreshTitle))
+                    {
+                        refreshControl.AttributedTitle = new NSAttributedString(RefreshView.refreshTitle);
+                    }
+                }
                 else
                     refreshControl.EndRefreshing();
 
